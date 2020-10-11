@@ -7,11 +7,11 @@ link := $(link) -s
 #link := $(link)
 objects := obj/bass.o
 
-all: dir $(objects)
+all: $(objects)
 	$(compiler) -o $(application) $(objects) $(link)
 
 dir:
-	@mkdir -p obj
+	@mkdir obj
 
 obj/bass.o: bass.cpp bass.hpp $(call rwildcard,core/*) $(call rwildcard,arch/*)
 	$(compiler) $(cppflags) $(flags) -o obj/bass.o -c bass.cpp

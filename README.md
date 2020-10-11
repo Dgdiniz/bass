@@ -1,6 +1,14 @@
-#### Building
-Requires make and coreutils (msys/cygwin on windows)
-```
-git clone https://github.com/ARM9/bass.git && cd bass/bass && make
-```
+## Building
+
+#### Linux:
+
+make dir
+make
+
+#### Windows
+
+make dir
+make
+
+Tested with g++ 4.8.2 and 7.3.0
 
