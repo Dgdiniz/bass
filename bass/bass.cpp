@@ -21,6 +21,7 @@ auto nall::main(Arguments arguments) -> void {
     print(stderr, "  -c name[=value]  create constant with optional value\n");
     print(stderr, "  -strict          upgrade warnings to errors\n");
     print(stderr, "  -benchmark       benchmark performance\n");
+    print(stderr, "  -lsp             generate Language Server Protocol diagnostics\n");
     exit(EXIT_FAILURE);
   }
 
@@ -39,6 +40,7 @@ auto nall::main(Arguments arguments) -> void {
 
   bool strict = arguments.take("-strict");
   bool benchmark = arguments.take("-benchmark");
+  bool lsp = arguments.take("-lsp");
 
   if(arguments.find("-*")) {
     print(stderr, "error: unrecognized argument(s)\n");
@@ -62,7 +64,7 @@ auto nall::main(Arguments arguments) -> void {
     auto p = constant.split("=", 1L);
     bass.constant(p(0), p(1, "1"));
   }
-  if(!bass.assemble(strict)) {
+  if(!bass.assemble(strict, lsp)) {
     print(stderr, "bass: assembly failed\n");
     exit(EXIT_FAILURE);
   }

@@ -2,9 +2,11 @@
 #include "analyze.cpp"
 #include "execute.cpp"
 #include "assemble.cpp"
+#include "lsp.cpp"
 #include "utility.cpp"
 
 auto Bass::target(const string& filename, bool create) -> bool {
+  if(lsp) return true;
   if(targetFile) targetFile.close();
   if(!filename) return true;
 
@@ -74,8 +76,9 @@ auto Bass::constant(const string& name, const string& value) -> void {
   }
 }
 
-auto Bass::assemble(bool strict) -> bool {
+auto Bass::assemble(bool strict, bool lsp) -> bool {
   this->strict = strict;
+  this->lsp = lsp;
 
   try {
     phase = Phase::Analyze;
@@ -85,9 +88,11 @@ auto Bass::assemble(bool strict) -> bool {
     architecture = new Architecture{*this};
     execute();
 
-    phase = Phase::Write;
+    phase = (lsp) ? Phase::Lsp : Phase::Write;
     architecture = new Architecture{*this};
     execute();
+	
+	if (lsp) print(stderr, "{\"Diagnostics\": [", this->diagnostics, "]}");
   } catch(...) {
     return false;
   }
@@ -159,11 +164,15 @@ template<typename... P> auto Bass::warning(P&&... p) -> void {
 
 template<typename... P> auto Bass::error(P&&... p) -> void {
   string s{forward<P>(p)...};
-  print(stderr, terminal::color::red("error: "), s, "\n");
-  printInstructionStack();
 
-  struct BassError {};
-  throw BassError();
+  if (this->lsp) {
+    addDiagnostic(s);
+  } else {
+    print(stderr, terminal::color::red("error: "), s, "\n");
+    printInstructionStack();
+    struct BassError {};
+    throw BassError();
+  }
 }
 
 auto Bass::printInstructionStack() -> void {

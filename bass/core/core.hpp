@@ -5,9 +5,9 @@ struct Bass {
   auto source(const string& filename) -> bool;
   auto define(const string& name, const string& value) -> void;
   auto constant(const string& name, const string& value) -> void;
-  auto assemble(bool strict = false) -> bool;
+  auto assemble(bool strict = false, bool lsp = false) -> bool;
 
-  enum class Phase : uint { Analyze, Query, Write };
+  enum class Phase : uint { Analyze, Query, Write, Lsp };
   enum class Endian : uint { LSB, MSB };
   enum class Evaluation : uint { Default = 0, Strict = 1 };  //strict mode disallows forward-declaration of constants
 
@@ -197,6 +197,9 @@ protected:
   auto text(string s) -> string;
   auto character(const string& s) -> int64_t;
 
+  //lsp.cpp
+  auto addDiagnostic(const string& s) -> bool;
+
   //internal state
   Instruction* activeInstruction = nullptr;  //used by notice, warning, error
   vector<Instruction> program;    //parsed source code statements
@@ -219,7 +222,10 @@ protected:
   uint nextLabelCounter = 1;      //+ instance counter
   bool charactersUseMap = false;  //0 = '*' parses as ASCII; 1 = '*' uses stringTable[]
   bool strict = false;            //upgrade warnings to errors when true
+  bool lsp = false;               //language server protocol
   Directives directives;          //active directives
+  string diagnostics;             //lsp diagnostics in json string format
+  uint numberOfDiagnostics = 0;
 
   file_buffer targetFile;
   string_vector sourceFilenames;

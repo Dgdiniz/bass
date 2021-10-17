@@ -15,8 +15,10 @@ auto Bass::evaluate(const string& expression, Evaluation mode) -> int64_t {
     node = Eval::parse(expression);
   } catch(const char* reason) {
     error("malformed expression: ", expression, " [", reason, "]");
-  } catch(...) {
+    if(lsp) return true;
+  } catch (...) {
     error("malformed expression: ", expression);
+    if(lsp) return true;
   }
   return evaluate(node, mode);
 }

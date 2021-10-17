@@ -127,8 +127,11 @@ auto Bass::analyzeInstruction(Instruction& i) -> bool {
       return true;
     }
   }
-  
-  if(s.match("}") && !blocks) error("} without matching {\n", i.lineNumber, ": ", i.statement);
+
+  if (s.match("}") && !blocks) {
+    error("} without matching {\n", i.lineNumber, ": ", i.statement);
+    return false;
+  }
 
   if(s.match("{")) {
     blocks.append({ip - 1, "block"});
