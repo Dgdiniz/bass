@@ -18,24 +18,42 @@ jobs:
     runs-on: ${{ matrix.os.name }}-${{ matrix.os.version }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.5.2
     - name: Init
+      shell: bash
       run: |
-        mkdir bass/obj
-        mkdir bass/out
-        mkdir dist
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          if [[ ! -d "bass/obj" ]]; then mkdir "bass/obj"; fi
+          if [[ ! -d "bass/out" ]]; then mkdir "bass/out"; fi
+          if [[ ! -d "dist" ]]; then mkdir "dist"; fi
+        else
+          mkdir -p bass/obj
+          mkdir -p bass/out
+          mkdir -p dist
+        fi
         cp -R bass/data/* bass/out/
         cp -R doc bass/out/
     
     - name: Make
       run: make
-      working-directory: bass      
+      working-directory: bass    
+
+    - name: Install 7z
+      if: runner.os == 'macOS'
+      run: |
+        brew install p7zip  
 
     - name: Pack
-      uses: papeloto/action-zip@v1
-      with:
-        files: bass/out/
-        dest: dist/bass-${{ matrix.os.name }}.zip
+      shell: bash
+      run: |
+        case "${{ runner.os }}" in
+          "Windows")
+            7z a -tzip dist/bass-${{ runner.os }}.zip bass/out/*
+            ;;
+          *)
+            zip -r dist/bass-${{ runner.os }}.zip bass/out/
+            ;;
+        esac
 
     - name: Upload
       uses: actions/upload-artifact@v2
@@ -47,26 +65,41 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.5.2
     - name: Set Version
       id: version
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}    
+      run: echo ::set-output name=hash::$(git rev-parse --short HEAD)   
     
     - name: Download
       uses: actions/download-artifact@v2
       with:
         path: dist
+
+    - name: List files in dist directory
+      run: |
+        echo "List of files in dist directory:"
+        ls -la dist
     
     - name: Crunch down files
+      shell: bash
       run: |
-        find . -name \*.zip -exec cp {} . \;
-        ls -lisah
-      working-directory: dist
+        find dist -type f -name '*.zip' -exec cp {} . \;
+    
+    - name: List current directory
+      run: ls -la
+
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%y.%m.%d')"
     
     - uses: "marvinpinto/action-automatic-releases@v1.2.1"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "${{ steps.version.outputs.tag }}"
-        title: "Release ${{ steps.version.outputs.tag }}"
+        automatic_release_tag: "commit-${{ steps.version.outputs.hash }}"
+        title: "bass-${{ steps.date.outputs.date }}-${{ steps.version.outputs.hash }}"
         prerelease: false
-        files: dist/bass-*.zip
+        files: |
+          bass-Linux.zip
+          bass-Windows.zip
+          bass-macOS.zip
+    
