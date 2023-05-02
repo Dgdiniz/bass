@@ -21,9 +21,9 @@ jobs:
     - uses: actions/checkout@v2
     - name: Init
       run: |
-        mkdir bass/obj
-        mkdir bass/out
-        mkdir dist
+        mkdir -p bass/obj
+        mkdir -p bass/out
+        mkdir -p dist
         cp -R bass/data/* bass/out/
         cp -R doc bass/out/
     
