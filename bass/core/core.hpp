@@ -13,6 +13,7 @@ struct Bass {
 
   struct Instruction {
     string statement;
+    uint statementOffset;
     uint ip;
 
     uint fileNumber;

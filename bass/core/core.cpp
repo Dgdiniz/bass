@@ -5,6 +5,28 @@
 #include "lsp.cpp"
 #include "utility.cpp"
 
+inline uint numberOfBlanksAtStart(const string& str) {
+  uint length = 0;
+  while(length < str.size()) {
+    char input = str[length];
+    if(input != ' ' && input != '\t' && input != '\r' && input != '\n') break;
+    length++;
+  }
+  
+  return length;
+}
+
+inline uint numberOfBlanksAtEnd(const string& str) {
+  uint length = 0;
+  while(length < str.size()) {
+    char input = str[str.size() - length - 1];
+    if(input != ' ' && input != '\t' && input != '\r' && input != '\n') break;
+    length++;
+  }
+  
+  return length;
+}
+
 auto Bass::target(const string& filename, bool create) -> bool {
   if(lsp) return true;
   if(targetFile) targetFile.close();
@@ -43,8 +65,15 @@ auto Bass::source(const string& filename) -> bool {
 
     //allow multiple statements per line, separated by ';'
     auto blocks = lines[lineNumber].qsplit(";").strip();
+    auto blocksRaw = lines[lineNumber].qsplit(";");
+    uint statementOffset = 0;
+
     for(uint blockNumber : range(blocks.size())) {
       string statement = blocks[blockNumber];
+      string rawStatement = blocksRaw[blockNumber];
+
+      statementOffset += numberOfBlanksAtStart(rawStatement);
+
       strip(statement);
       if(!statement) continue;
 
@@ -57,8 +86,10 @@ auto Bass::source(const string& filename) -> bool {
         instruction.fileNumber = fileNumber;
         instruction.lineNumber = 1 + lineNumber;
         instruction.blockNumber = 1 + blockNumber;
+        instruction.statementOffset = statementOffset;
         program.append(instruction);
       }
+      statementOffset += 1 + statement.size() + numberOfBlanksAtEnd(rawStatement);
     }
   }
 
