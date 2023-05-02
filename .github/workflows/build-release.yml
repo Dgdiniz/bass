@@ -20,22 +20,40 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Init
+      shell: bash
       run: |
-        mkdir bass/obj
-        mkdir bass/out
-        mkdir dist
+        if [[ "${{ runner.os }}" == "Windows" ]]; then
+          if [[ ! -d "bass/obj" ]]; then mkdir "bass/obj"; fi
+          if [[ ! -d "bass/out" ]]; then mkdir "bass/out"; fi
+          if [[ ! -d "dist" ]]; then mkdir "dist"; fi
+        else
+          mkdir -p bass/obj
+          mkdir -p bass/out
+          mkdir -p dist
+        fi
         cp -R bass/data/* bass/out/
         cp -R doc bass/out/
     
     - name: Make
       run: make
-      working-directory: bass      
+      working-directory: bass    
+
+    - name: Install 7z
+      if: runner.os == 'macOS'
+      run: |
+        brew install p7zip  
 
     - name: Pack
-      uses: papeloto/action-zip@v1
-      with:
-        files: bass/out/
-        dest: dist/bass-${{ matrix.os.name }}.zip
+      shell: bash
+      run: |
+        case "${{ runner.os }}" in
+          "Windows")
+            7z a -tzip dist/bass-${{ runner.os }}.zip bass/out/*
+            ;;
+          *)
+            zip -r dist/bass-${{ runner.os }}.zip bass/out/
+            ;;
+        esac
 
     - name: Upload
       uses: actions/upload-artifact@v2
@@ -58,10 +76,9 @@ jobs:
         path: dist
     
     - name: Crunch down files
+      shell: bash
       run: |
-        find . -name \*.zip -exec cp {} . \;
-        ls -lisah
-      working-directory: dist
+        find dist -maxdepth 1 -type f -name '*.zip' -exec cp {} . \;
     
     - uses: "marvinpinto/action-automatic-releases@v1.2.1"
       with:
@@ -69,4 +86,8 @@ jobs:
         automatic_release_tag: "${{ steps.version.outputs.tag }}"
         title: "Release ${{ steps.version.outputs.tag }}"
         prerelease: false
-        files: dist/bass-*.zip
+        files: |
+          *bass-Ubuntu.zip
+          *bass-Windows.zip
+          *bass-macOS.zip
+    
