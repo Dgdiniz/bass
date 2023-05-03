@@ -9,7 +9,7 @@
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
   if(!arguments) {
-    print(stderr, "bass v18.0.2\n");
+    print(stderr, "bass v18.1.1\n");
     print(stderr, "\n");
     print(stderr, "usage:\n");
     print(stderr, "  bass [options] source [source ...]\n");
