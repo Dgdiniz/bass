@@ -1,9 +1,8 @@
 name: Build Latest
 on:
   push:
-    branches: [ master ]
     tags:
-      - 'v*'
+      - '*'
 jobs:
   build:
     strategy:
@@ -88,15 +87,15 @@ jobs:
     - name: List current directory
       run: ls -la
 
-    - name: Get current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y/%m/%d')"
+    - name: Get tag name
+      id: tag
+      run: echo "::set-output name=tag_name::${GITHUB_REF#refs/tags/}"
     
     - uses: "marvinpinto/action-automatic-releases@v1.2.1"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "commit-${{ steps.version.outputs.hash }}"
-        title: "bass-${{ steps.date.outputs.date }}-${{ steps.version.outputs.hash }}"
+        title: "${{ steps.tag.outputs.tag_name }}"
         prerelease: false
         files: |
           bass-Linux.zip
