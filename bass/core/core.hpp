@@ -5,7 +5,9 @@ struct Bass {
   auto source(const string& filename) -> bool;
   auto define(const string& name, const string& value) -> void;
   auto constant(const string& name, const string& value) -> void;
-  auto assemble(bool strict = false, bool lsp = false) -> bool;
+  auto assemble(bool strict = false) -> bool;
+
+  auto setLsp(bool lsp) -> void { this->lsp = lsp; }
 
   enum class Phase : uint { Analyze, Query, Write, Lsp };
   enum class Endian : uint { LSB, MSB };

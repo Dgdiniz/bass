@@ -36,7 +36,7 @@ auto Bass::target(const string& filename, bool create) -> bool {
   if(!file::exists(filename)) create = true;
 
   if(!targetFile.open(filename, create ? file::mode::write : file::mode::modify)) {
-    print(stderr, "warning: unable to open target file: ", filename, "\n");
+    if(!lsp) print(stderr, "warning: unable to open target file: ", filename, "\n");
     return false;
   }
 
@@ -46,7 +46,7 @@ auto Bass::target(const string& filename, bool create) -> bool {
 
 auto Bass::source(const string& filename) -> bool {
   if(!file::exists(filename)) {
-    print(stderr, "warning: source file not found: ", filename, "\n");
+    if (!lsp) {print(stderr, "warning: source file not found: ", filename, "\n");}
     return false;
   }
 
@@ -107,9 +107,8 @@ auto Bass::constant(const string& name, const string& value) -> void {
   }
 }
 
-auto Bass::assemble(bool strict, bool lsp) -> bool {
+auto Bass::assemble(bool strict) -> bool {
   this->strict = strict;
-  this->lsp = lsp;
 
   try {
     phase = Phase::Analyze;
@@ -170,19 +169,19 @@ auto Bass::write(uint64_t data, uint length) -> void {
 auto Bass::printInstruction() -> void {
   if(activeInstruction) {
     auto& i = *activeInstruction;
-    print(stderr, sourceFilenames[i.fileNumber], ":", i.lineNumber, ":", i.blockNumber, ": ", i.statement, "\n");
+    if(!lsp) print(stderr, sourceFilenames[i.fileNumber], ":", i.lineNumber, ":", i.blockNumber, ": ", i.statement, "\n");
   }
 }
 
 template<typename... P> auto Bass::notice(P&&... p) -> void {
   string s{forward<P>(p)...};
-  print(stderr, terminal::color::gray("notice: "), s, "\n");
+  if(!lsp) print(stderr, terminal::color::gray("notice: "), s, "\n");
   printInstruction();
 }
 
 template<typename... P> auto Bass::warning(P&&... p) -> void {
   string s{forward<P>(p)...};
-  print(stderr, terminal::color::yellow("warning: "), s, "\n");
+  if(!lsp) print(stderr, terminal::color::yellow("warning: "), s, "\n");
   if(!strict) {
     printInstruction();
     return;
@@ -199,7 +198,7 @@ template<typename... P> auto Bass::error(P&&... p) -> void {
   if (this->lsp) {
     addDiagnostic(s);
   } else {
-    print(stderr, terminal::color::red("error: "), s, "\n");
+    if(!lsp) print(stderr, terminal::color::red("error: "), s, "\n");
     printInstructionStack();
     struct BassError {};
     throw BassError();
@@ -212,7 +211,7 @@ auto Bass::printInstructionStack() -> void {
   for(const auto& frame : reverse(frames)) {
     if(frame.ip > 0 && frame.ip <= program.size()) {
       auto& i = program[frame.ip - 1];
-      print(stderr, "   ", sourceFilenames[i.fileNumber], ":", i.lineNumber, ":", i.blockNumber, ": ", i.statement, "\n");
+      if(!lsp) print(stderr, "   ", sourceFilenames[i.fileNumber], ":", i.lineNumber, ":", i.blockNumber, ": ", i.statement, "\n");
     }
   }
 }
