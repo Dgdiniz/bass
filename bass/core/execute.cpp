@@ -1,4 +1,8 @@
 auto Bass::execute() -> bool {
+  //If the LSP server is active, only execute in the LSP phase,
+  //to avoid duplicate diagnostics
+  if (lsp && (phase != Phase::Lsp)) return true;
+
   frames.reset();
   conditionals.reset();
   ip = 0;
