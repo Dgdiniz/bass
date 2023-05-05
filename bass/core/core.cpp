@@ -77,16 +77,20 @@ auto Bass::source(const string& filename) -> bool {
       strip(statement);
       if(!statement) continue;
 
+      Instruction instruction;
+      instruction.statement = statement;
+      instruction.fileNumber = fileNumber;
+      instruction.lineNumber = 1 + lineNumber;
+      instruction.blockNumber = 1 + blockNumber;
+      instruction.statementOffset = statementOffset;
+
       if(statement.match("include \"?*\"")) {
         statement.trimLeft("include ", 1L).strip();
-        source({Location::path(filename), text(statement)});
+        if (!source({Location::path(filename), text(statement)})) {
+          string s = string("source file not found: ", statement);
+          addDiagnostic(s, &instruction);
+        }
       } else {
-        Instruction instruction;
-        instruction.statement = statement;
-        instruction.fileNumber = fileNumber;
-        instruction.lineNumber = 1 + lineNumber;
-        instruction.blockNumber = 1 + blockNumber;
-        instruction.statementOffset = statementOffset;
         program.append(instruction);
       }
       statementOffset += 1 + statement.size() + numberOfBlanksAtEnd(rawStatement);
@@ -196,7 +200,7 @@ template<typename... P> auto Bass::error(P&&... p) -> void {
   string s{forward<P>(p)...};
 
   if (this->lsp) {
-    addDiagnostic(s);
+    addDiagnostic(s, nullptr);
   } else {
     if(!lsp) print(stderr, terminal::color::red("error: "), s, "\n");
     printInstructionStack();

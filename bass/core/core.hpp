@@ -201,7 +201,7 @@ protected:
   auto character(const string& s) -> int64_t;
 
   //lsp.cpp
-  auto addDiagnostic(string& s) -> bool;
+  auto addDiagnostic(string& s, Instruction* i) -> bool;
 
   //internal state
   Instruction* activeInstruction = nullptr;  //used by notice, warning, error

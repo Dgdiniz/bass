@@ -1,7 +1,7 @@
 
-auto Bass::addDiagnostic(string& s) -> bool {
-  if (activeInstruction) {
-    auto& i = *activeInstruction;
+auto Bass::addDiagnostic(string& s, Instruction* instruction) -> bool {
+  if ((activeInstruction) || (instruction)) {
+    auto& i = (activeInstruction) ? *activeInstruction : *instruction;
 
     //Change quotes to avoid JSON parsing errors
     s.replace("\"", "\\\"");
@@ -21,5 +21,6 @@ auto Bass::addDiagnostic(string& s) -> bool {
     diagnostics.append(sourceFilenames[i.fileNumber]);
     diagnostics.append("\" }");
   }
+
   return true;
 }
