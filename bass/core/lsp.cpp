@@ -1,13 +1,10 @@
 
-auto Bass::addDiagnostic(const string& s) -> bool {
+auto Bass::addDiagnostic(string& s) -> bool {
   if (activeInstruction) {
     auto& i = *activeInstruction;
 
     //Change quotes to avoid JSON parsing errors
-    string s2 = s;
-    for (auto& c : s2) {
-      if (c == '"') c = '\'';
-    }
+    s.replace("\"", "\\\"");
 
     if (numberOfDiagnostics++ > 0) diagnostics.append(",");
     diagnostics.append("{\"severity\": 2, \"range\": { \"start\": { \"line\": ");
@@ -19,7 +16,7 @@ auto Bass::addDiagnostic(const string& s) -> bool {
     diagnostics.append(", \"character\": ");
     diagnostics.append(i.statementOffset + i.statement.size());
     diagnostics.append("} }, \"message\": \"");
-    diagnostics.append(s2);
+    diagnostics.append(s);
     diagnostics.append("\", \"source\": \"");
     diagnostics.append(sourceFilenames[i.fileNumber]);
     diagnostics.append("\" }");
