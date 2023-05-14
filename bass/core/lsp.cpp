@@ -7,7 +7,7 @@ auto Bass::addDiagnostic(string& s, Instruction* instruction) -> bool {
     s.replace("\"", "\\\"");
 
     if (numberOfDiagnostics++ > 0) diagnostics.append(",");
-    diagnostics.append("{\"severity\": 2, \"range\": { \"start\": { \"line\": ");
+    diagnostics.append("{\"severity\": 1, \"range\": { \"start\": { \"line\": ");
     diagnostics.append(i.lineNumber - 1);
     diagnostics.append(", \"character\": ");
     diagnostics.append(i.statementOffset);
