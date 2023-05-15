@@ -52,7 +52,6 @@ auto nall::main(Arguments arguments) -> void {
 
   clock_t clockStart = clock();
   Bass bass;
-  bass.setLsp(lsp);
   bass.target(targetFilename, create);
   for(auto& sourceFilename : sourceFilenames) {
     bass.source(sourceFilename);
@@ -65,6 +64,7 @@ auto nall::main(Arguments arguments) -> void {
     auto p = constant.split("=", 1L);
     bass.constant(p(0), p(1, "1"));
   }
+  bass.setLsp(lsp);
   if(!bass.assemble(strict)) {
     print(stderr, "bass: assembly failed\n");
     exit(EXIT_FAILURE);
