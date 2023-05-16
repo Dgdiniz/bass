@@ -3,6 +3,8 @@ auto Bass::addDiagnostic(string& s, Instruction* instruction) -> bool {
   if ((activeInstruction) || (instruction)) {
     auto& i = (activeInstruction) ? *activeInstruction : *instruction;
 
+    if (numberOfDiagnostics >= 1000) return true;
+
     //Change quotes to avoid JSON parsing errors
     s.replace("\"", "\\\"");
 
