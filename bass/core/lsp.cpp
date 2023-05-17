@@ -7,6 +7,8 @@ auto Bass::addDiagnostic(string& s, Instruction* instruction) -> bool {
 
     //Change quotes to avoid JSON parsing errors
     s.replace("\"", "\\\"");
+    // Replace \ with \\ to avoid JSON parsing errors
+    s.replace("\\", "\\\\");
 
     if (numberOfDiagnostics++ > 0) diagnostics.append(",");
     diagnostics.append("{\"severity\": 1, \"range\": { \"start\": { \"line\": ");
