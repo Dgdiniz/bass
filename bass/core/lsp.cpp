@@ -5,11 +5,11 @@ auto Bass::addDiagnostic(string& s, Instruction* instruction) -> bool {
 
     if (numberOfDiagnostics >= 1000) return true;
 
-    //Change quotes to avoid JSON parsing errors
-    s.replace("\"", "\\\"");
     // Replace \ with \\ to avoid JSON parsing errors
     s.replace("\\", "\\\\");
-
+    //Change quotes to avoid JSON parsing errors
+    s.replace("\"", "\\\"");
+    
     if (numberOfDiagnostics++ > 0) diagnostics.append(",");
     diagnostics.append("{\"severity\": 1, \"range\": { \"start\": { \"line\": ");
     diagnostics.append(i.lineNumber - 1);
