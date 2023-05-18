@@ -18,7 +18,7 @@ auto Bass::addDiagnostic(string& s, Instruction* instruction) -> bool {
     diagnostics.append(" }, \"end\": { \"line\": ");
     diagnostics.append(i.lineNumber - 1);
     diagnostics.append(", \"character\": ");
-    diagnostics.append(i.statementOffset + i.statement.size());
+    diagnostics.append(i.statementOffset + i.rawStatement.strip().size());
     diagnostics.append("} }, \"message\": \"");
     diagnostics.append(s);
     diagnostics.append("\", \"source\": \"");

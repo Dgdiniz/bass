@@ -21,6 +21,7 @@ struct Bass {
     uint lineNumber;
     uint blockNumber;
     uint statementOffset;
+    string rawStatement;
   };
 
   struct Macro {

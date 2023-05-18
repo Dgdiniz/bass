@@ -83,6 +83,7 @@ auto Bass::source(const string& filename) -> bool {
       instruction.lineNumber = 1 + lineNumber;
       instruction.blockNumber = 1 + blockNumber;
       instruction.statementOffset = statementOffset;
+      instruction.rawStatement = rawStatement;
 
       if(statement.match("include \"?*\"")) {
         statement.trimLeft("include ", 1L).strip();
